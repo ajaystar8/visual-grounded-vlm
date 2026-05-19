@@ -3,6 +3,7 @@
 *__pycache__*
 
 /notebooks
+/rough_notebooks
 slurm_logs/
 dump/
 external/
