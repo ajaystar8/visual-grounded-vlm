@@ -1,0 +1,14 @@
+*.ipynb
+.*
+*__pycache__*
+
+/notebooks
+slurm_logs/
+dump/
+external/
+archives/
+src/wandb
+dump_dir
+wandb/
+docs/
+references/
