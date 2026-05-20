@@ -9,7 +9,7 @@ Expects:
     - model.path: HuggingFace model ID (e.g., Qwen/Qwen2.5-VL-7B-Instruct)
     - dataset.root: Path to V-STaR dataset root
     - dataset.annotation_file: Relative path to annotation JSON within dataset.root
-    - dataset.system_prompt: Question template for prompting
+    - dataset.system_prompt_path: Path to .md file containing the question template
     - visual_grounding.anns_root: Directory containing masks/<qid>.json annotation files
     - visual_grounding.ann_type: One of 'mask' | 'bbox' | 'outline' | 'point'
     - results_root: Base output directory for results
@@ -33,6 +33,9 @@ import datetime
 import yaml
 import argparse
 
+import torch
+import numpy as np
+
 from vllm import LLM, SamplingParams
 from qwen_vl_utils import process_vision_info
 
@@ -54,7 +57,9 @@ model_path = cfg["model"]["path"]
 
 vstar_root = cfg["dataset"]["root"]
 vstar_annotation_path = os.path.join(vstar_root, cfg["dataset"]["annotation_file"])
-vstar_system_prompt = cfg["dataset"]["system_prompt"]
+vstar_system_prompt_path = cfg["dataset"]["system_prompt_path"]
+with open(vstar_system_prompt_path) as f:
+    vstar_system_prompt = f.read()
 
 BATCH_SIZE = cfg["batch_size"]  # we need to do this to prevent RAM overflow
 
@@ -123,6 +128,7 @@ def build_prompts(dataset, processor):
             for video_input in video_inputs:
                 record = load_mask_annotations(os.path.join(VG_ANNOTATION_CONFIG['root'], "masks", f"{sample['qid']}.json"))
                 annotated_input = annotate_frames(video_input, record["masks_np"], annotation_type=VG_ANNOTATION_CONFIG['type'])
+                annotated_input = torch.tensor(np.array(annotated_input)).permute(0, 3, 1, 2).to(torch.float32)
                 annotated_inputs.append(annotated_input)
             
             video_inputs = annotated_inputs
@@ -155,6 +161,7 @@ def save_metadata(run_dir, run_start_time, num_samples):
             "annotation_file": vstar_annotation_path,
             "num_samples_processed": num_samples,
         },
+        "system_prompt_path": vstar_system_prompt_path,
         "system_prompt_template": vstar_system_prompt.strip(),
         "llm_config": LLM_CONFIG,
         "sampling_config": SAMPLING_CONFIG,

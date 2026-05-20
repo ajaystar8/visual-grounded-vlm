@@ -6,7 +6,7 @@ Expects:
     - model.path: HuggingFace model ID (e.g., Qwen/Qwen2.5-VL-7B-Instruct)
     - dataset.root: Path to V-STaR dataset root
     - dataset.annotation_file: Relative path to annotation JSON within dataset.root
-    - dataset.system_prompt: Question template for prompting
+    - dataset.system_prompt_path: Path to .md file containing the question template
     - results_root: Base output directory for results
     - batch_size: Inference batch size
     - llm/sampling/video: Configuration dicts for LLM, sampling params, and video processing
@@ -48,7 +48,9 @@ model_path = cfg["model"]["path"]
 
 vstar_root = cfg["dataset"]["root"]
 vstar_annotation_path = os.path.join(vstar_root, cfg["dataset"]["annotation_file"])
-vstar_system_prompt = cfg["dataset"]["system_prompt"]
+vstar_system_prompt_path = cfg["dataset"]["system_prompt_path"]
+with open(vstar_system_prompt_path) as f:
+    vstar_system_prompt = f.read()
 
 BATCH_SIZE = cfg["batch_size"]  # we need to do this to prevent RAM overflow
 
@@ -135,6 +137,7 @@ def save_metadata(run_dir, run_start_time, num_samples):
             "annotation_file": vstar_annotation_path,
             "num_samples_processed": num_samples,
         },
+        "system_prompt_path": vstar_system_prompt_path,
         "system_prompt_template": vstar_system_prompt.strip(),
         "llm_config": LLM_CONFIG,
         "sampling_config": SAMPLING_CONFIG,
