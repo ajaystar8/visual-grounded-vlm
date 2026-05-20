@@ -22,7 +22,7 @@ cd $PROJECT_ROOT
 OUTPUT_DIR="/scratch/rajendrakumar.a/visual-grounded-vlm/annotations/vstar"
 EXPERIMENT_NAME="uniform_sample_cap_768"
 
-python scripts/benchmark/vstar/propagate_sam3_masks.py \
+python src/dataset/vstar/propagate_sam3_masks.py \
     --output_dir "$OUTPUT_DIR" \
     --experiment_name "$EXPERIMENT_NAME"
 
