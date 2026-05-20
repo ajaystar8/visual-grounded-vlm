@@ -1,0 +1,33 @@
+experiment_name: qwen25vl7bi_vstar_zeroshot_vg_mask
+
+model:
+  path: Qwen/Qwen2.5-VL-7B-Instruct
+
+dataset:
+  name: V-STaR
+  root: /projects/torresani-lab/ajay/datasets/V-STaR
+  annotation_file: V_STaR_test_with_qid.json
+  system_prompt: "Answer the question about the video: {question} \n (If the answer is a person, you don't need to identify the person.)"
+
+visual_grounding: 
+  anns_root: /scratch/rajendrakumar.a/visual-grounded-vlm/annotations/vstar/uniform_sample_cap_768/2026-05-19_18-58-06/
+  ann_type: 'mask' # 'mask' | 'bbox' | 'outline' | 'point'.
+
+results_root: /scratch/rajendrakumar.a/visual-grounded-vlm/results
+
+batch_size: 300
+
+llm:
+  gpu_memory_utilization: 0.8
+  enforce_eager: true
+  limit_mm_per_prompt:
+    video: 1
+
+sampling:
+  max_tokens: 32
+  temperature: 0
+
+video:
+  total_pixels: 16056320  # 20480 * 28 * 28
+  min_pixels: 12544       # 16 * 28 * 28
+  fps: 1.0
