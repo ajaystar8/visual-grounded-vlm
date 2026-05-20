@@ -1,9 +1,9 @@
 """
-V-STaR inference using Qwen2.5-72B-Instruct vision-language model.
+V-STaR inference using Qwen2.5-VL vision-language model.
 
 Expects:
   - A YAML config file (passed via --config) with:
-    - model.path: HuggingFace model ID (e.g., Qwen/Qwen2.5-72B-Instruct)
+    - model.path: HuggingFace model ID (e.g., Qwen/Qwen2.5-VL-7B-Instruct)
     - dataset.root: Path to V-STaR dataset root
     - dataset.annotation_file: Relative path to annotation JSON within dataset.root
     - dataset.system_prompt: Question template for prompting
@@ -15,7 +15,7 @@ Output:
   - Writes results.json with generated answers and metadata.json with config/run info
 
 Controlled by:
-  - bash_scripts/benchmark/vstar/infer.sh
+  - bash_scripts/benchmark/vstar/qwen_infer.sh
 """
 
 import sys
