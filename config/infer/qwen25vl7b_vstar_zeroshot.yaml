@@ -7,7 +7,7 @@ dataset:
   name: V-STaR
   root: /projects/torresani-lab/ajay/datasets/V-STaR
   annotation_file: V_STaR_test_with_qid.json
-  system_prompt: "Answer the question about the video: {question} \n (If the answer is a person, you don't need to identify the person.)"
+  system_prompt_path: /projects/torresani-lab/ajay/visual-grounded-vlm/prompts/inference/no_annotation.md
 
 results_root: /scratch/rajendrakumar.a/visual-grounded-vlm/results
 

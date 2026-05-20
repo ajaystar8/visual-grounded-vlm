@@ -1,4 +1,4 @@
-experiment_name: qwen25vl7bi_vstar_zeroshot_vg_mask
+experiment_name: qwen25vl7bi_vstar_zeroshot_vg_outline
 
 model:
   path: Qwen/Qwen2.5-VL-7B-Instruct
@@ -7,11 +7,11 @@ dataset:
   name: V-STaR
   root: /projects/torresani-lab/ajay/datasets/V-STaR
   annotation_file: V_STaR_test_with_qid.json
-  system_prompt: "Answer the question about the video: {question} \n (If the answer is a person, you don't need to identify the person.)"
+  system_prompt_path: /projects/torresani-lab/ajay/visual-grounded-vlm/prompts/inference/mask_annotation.md
 
 visual_grounding: 
-  anns_root: /scratch/rajendrakumar.a/visual-grounded-vlm/annotations/vstar/uniform_sample_cap_768/2026-05-19_18-58-06/
-  ann_type: 'mask' # 'mask' | 'bbox' | 'outline' | 'point'.
+  anns_root: /scratch/rajendrakumar.a/visual-grounded-vlm/annotations/vstar/uniform_sample_cap_768/2026-05-19_19-14-38
+  ann_type: 'outline' # 'mask' | 'bbox' | 'outline' | 'point'.
 
 results_root: /scratch/rajendrakumar.a/visual-grounded-vlm/results
 
