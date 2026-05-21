@@ -15,11 +15,13 @@ echo "Start time: $(date)"
 
 source /home/${USER}/.bashrc
 source activate perception_models
+export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
+export VLLM_WORKER_MULTIPROC_METHOD=spawn # vLLM crashes if not set
 
 PROJECT_ROOT=/projects/torresani-lab/ajay/visual-grounded-vlm
 cd $PROJECT_ROOT
 
-EXP_DIR=/scratch/rajendrakumar.a/visual-grounded-vlm/results/qwen25vl7bi_vstar_zeroshot/2026-05-18_18-35-15
+EXP_DIR=/scratch/rajendrakumar.a/visual-grounded-vlm/results/qwen25vl7bi_vstar_zeroshot_vg_outline/2026-05-20_12-06-08
 python scripts/benchmark/vstar/eval.py --exp_dir "$EXP_DIR"
 
 echo "End time: $(date)"

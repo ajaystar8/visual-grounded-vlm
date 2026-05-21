@@ -88,13 +88,15 @@ VIDEO_CONFIG = {
 }
 
 
-def build_prompts(dataset, processor):
+def build_prompts(dataset, processor, missing_annotations):
     """
     Generator that yields (llm_input, sample) one at a time.
 
     Args:
         dataset: HuggingFace dataset of V-STaR annotations.
         processor: AutoProcessor for the model (applies chat template).
+        missing_annotations: list to append dicts for samples whose annotation
+            file is absent (mutated in place).
 
     Yields:
         tuple: (llm_inputs dict with 'prompt' and 'multi_modal_data', sample dict)
@@ -122,15 +124,21 @@ def build_prompts(dataset, processor):
 
         _, video_inputs = process_vision_info(messages)
         if video_inputs is not None:
-            
+
             # apply relevant VG annotations to video frames
+            annotation_path = os.path.join(VG_ANNOTATION_CONFIG['root'], "masks", f"{sample['qid']}.json")
+            if not os.path.exists(annotation_path):
+                missing_annotations.append({"qid": sample["qid"], "vid": sample["vid"], "annotation_path": annotation_path})
+                print(f"[WARN] Missing annotation file, skipping sample qid={sample['qid']}: {annotation_path}")
+                continue
+
             annotated_inputs = []
             for video_input in video_inputs:
-                record = load_mask_annotations(os.path.join(VG_ANNOTATION_CONFIG['root'], "masks", f"{sample['qid']}.json"))
+                record = load_mask_annotations(annotation_path)
                 annotated_input = annotate_frames(video_input, record["masks_np"], annotation_type=VG_ANNOTATION_CONFIG['type'])
                 annotated_input = torch.tensor(np.array(annotated_input)).permute(0, 3, 1, 2).to(torch.float32)
                 annotated_inputs.append(annotated_input)
-            
+
             video_inputs = annotated_inputs
             mm_data = {'video': video_inputs}
             sample["num_frames_used"] = video_inputs[0].shape[0]
@@ -150,7 +158,7 @@ def make_run_dir(run_start_time):
     return run_dir
 
 
-def save_metadata(run_dir, run_start_time, num_samples):
+def save_metadata(run_dir, run_start_time, num_samples, missing_annotations):
     metadata = {
         "run_start_time": run_start_time.isoformat(),
         "model_path": model_path,
@@ -160,6 +168,10 @@ def save_metadata(run_dir, run_start_time, num_samples):
             "root": vstar_root,
             "annotation_file": vstar_annotation_path,
             "num_samples_processed": num_samples,
+        },
+        "missing_annotations": {
+            "count": len(missing_annotations),
+            "samples": missing_annotations,
         },
         "system_prompt_path": vstar_system_prompt_path,
         "system_prompt_template": vstar_system_prompt.strip(),
@@ -190,8 +202,9 @@ def main():
     results_path = os.path.join(run_dir, "results.json")
     results = []
     total_processed = 0
+    missing_annotations = []
 
-    prompt_gen = build_prompts(dataset, processor)
+    prompt_gen = build_prompts(dataset, processor, missing_annotations)
     while True:
         batch_inputs, batch_samples = [], []
         for llm_inputs, sample in prompt_gen:
@@ -222,7 +235,9 @@ def main():
         with open(results_path, "w") as f:
             json.dump(results, f, indent=2)
 
-    save_metadata(run_dir, run_start_time, total_processed)
+    save_metadata(run_dir, run_start_time, total_processed, missing_annotations)
+    if missing_annotations:
+        print(f"[WARN] {len(missing_annotations)} samples skipped due to missing annotation files.")
     print(f"Results saved to: {results_path}")
 
 
