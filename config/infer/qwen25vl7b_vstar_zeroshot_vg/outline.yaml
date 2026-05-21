@@ -7,15 +7,15 @@ dataset:
   name: V-STaR
   root: /projects/torresani-lab/ajay/datasets/V-STaR
   annotation_file: V_STaR_test_with_qid.json
-  system_prompt_path: /projects/torresani-lab/ajay/visual-grounded-vlm/prompts/inference/mask_annotation.md
+  system_prompt_path: /projects/torresani-lab/ajay/visual-grounded-vlm/prompts/inference/outline_annotation.md
 
-visual_grounding: 
+visual_grounding:
   anns_root: /scratch/rajendrakumar.a/visual-grounded-vlm/annotations/vstar/uniform_sample_cap_768/2026-05-19_19-14-38
-  ann_type: 'outline' # 'mask' | 'bbox' | 'outline' | 'point'.
+  ann_type: 'outline' # 'mask' | 'bbox' | 'outline' | 'point'
 
 results_root: /scratch/rajendrakumar.a/visual-grounded-vlm/results
 
-batch_size: 300
+batch_size: 500
 
 llm:
   gpu_memory_utilization: 0.8
