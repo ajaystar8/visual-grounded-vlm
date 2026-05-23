@@ -5,6 +5,8 @@ Mask files are produced by `src/dataset/annotate.py` and stored as JSON with
 COCO-RLE-encoded per-frame masks.
 """
 
+from PIL import Image
+import matplotlib
 import json
 
 import cv2
@@ -148,3 +150,52 @@ def annotate_frames(frames, video_segments, annotation_type="mask", **kwargs):
         annotated_frames.append(annotated_frame)
 
     return annotated_frames
+
+def overlay_masks(image, results, mode="mask"):
+    """
+    Overlay masks, bboxes, or outlines for multiple objects onto a single image.
+
+    Unlike `annotate_frames`, which annotates one object per frame across a video
+    using a {frame_idx -> mask} dict, this function annotates N objects on a single
+    image using a batch results dict with stacked tensors.
+
+    Args:
+        image: PIL Image or BGR numpy array (e.g. from cv2.imread).
+        results: dict with:
+            - "masks": (N, H, W) bool/uint8 tensor  [required for mode="mask"/"outline"]
+            - "boxes": (N, 4) float tensor, pixel-coord xyxy  [required for mode="bbox"]
+        mode: "mask" | "bbox" | "outline"
+    """
+    if not isinstance(image, Image.Image):
+        image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    image = image.convert("RGBA")
+
+    n = len(results["masks"] if mode == "mask" else results["boxes"])
+    cmap = matplotlib.colormaps.get_cmap("rainbow").resampled(n)
+    colors = [tuple(int(c * 255) for c in cmap(i)[:3]) for i in range(n)]
+
+    if mode == "mask":
+        masks = 255 * results["masks"].cpu().numpy().astype(np.uint8)
+        for mask, color in zip(masks, colors):
+            mask = Image.fromarray(mask)
+            overlay = Image.new("RGBA", image.size, color + (0,))
+            overlay.putalpha(mask.point(lambda v: int(v * 0.5)))
+            image = Image.alpha_composite(image, overlay)
+
+    elif mode == "bbox":
+        boxes = results["boxes"].cpu().numpy()
+        img_np = np.array(image.convert("RGB"))
+        for bbox, color in zip(boxes, colors):
+            x1, y1, x2, y2 = int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])
+            cv2.rectangle(img_np, (x1, y1), (x2, y2), color, 2)
+        image = Image.fromarray(img_np).convert("RGBA")
+
+    elif mode == "outline":
+        masks = results["masks"].cpu().numpy().astype(np.uint8)
+        img_np = np.array(image.convert("RGB"))
+        for mask, color in zip(masks, colors):
+            contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            cv2.drawContours(img_np, contours, -1, color, 2)
+        image = Image.fromarray(img_np).convert("RGBA")
+
+    return image
