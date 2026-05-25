@@ -7,6 +7,10 @@ Like qwen_infer.py, but overlays precomputed visual grounding annotations
 Expects:
   - A YAML config file (passed via --config) with:
     - model.path: HuggingFace model ID (e.g., Qwen/Qwen2.5-VL-7B-Instruct)
+    - model.experiment_dir (optional): Path to an SFT experiment directory containing
+      adapter_config.json + adapter_model.safetensors. If set, the LoRA adapter is
+      loaded on top of the base model (base model and rank are read from
+      adapter_config.json; model.path is ignored).
     - dataset.root: Path to V-STaR dataset root
     - dataset.annotation_file: Relative path to annotation JSON within dataset.root
     - dataset.system_prompt_path: Path to .md file containing the question template
@@ -37,6 +41,7 @@ import torch
 import numpy as np
 
 from vllm import LLM, SamplingParams
+from vllm.lora.request import LoRARequest
 from qwen_vl_utils import process_vision_info
 
 from src.utils.annotation_utils import load_mask_annotations, annotate_frames
@@ -53,7 +58,16 @@ with open(args.config) as f:
     cfg = yaml.safe_load(f)
 
 experiment_name = cfg["experiment_name"]
-model_path = cfg["model"]["path"]
+
+lora_experiment_dir = cfg["model"].get("experiment_dir")
+if lora_experiment_dir:
+    with open(os.path.join(lora_experiment_dir, "adapter_config.json")) as f:
+        adapter_cfg = json.load(f)
+    model_path = adapter_cfg["base_model_name_or_path"]
+    lora_max_rank = adapter_cfg["r"]
+else:
+    model_path = cfg["model"]["path"]
+    lora_max_rank = None
 
 vstar_root = cfg["dataset"]["root"]
 vstar_annotation_path = os.path.join(vstar_root, cfg["dataset"]["annotation_file"])
@@ -162,6 +176,8 @@ def save_metadata(run_dir, run_start_time, num_samples, missing_annotations):
     metadata = {
         "run_start_time": run_start_time.isoformat(),
         "model_path": model_path,
+        "lora_experiment_dir": lora_experiment_dir,
+        "lora_max_rank": lora_max_rank,
         "experiment_name": experiment_name,
         "dataset": {
             "name": cfg["dataset"]["name"],
@@ -196,7 +212,14 @@ def main():
     dataset = load_dataset("json", data_files=vstar_annotation_path, split="train")
     processor = AutoProcessor.from_pretrained(model_path)
 
-    llm = LLM(model=model_path, **LLM_CONFIG)
+    llm_kwargs = dict(LLM_CONFIG)
+    lora_request = None
+    if lora_experiment_dir:
+        llm_kwargs["enable_lora"] = True
+        llm_kwargs["max_lora_rank"] = lora_max_rank
+        lora_request = LoRARequest("sft_adapter", 1, lora_experiment_dir)
+
+    llm = LLM(model=model_path, **llm_kwargs)
     sampling_params = SamplingParams(**SAMPLING_CONFIG)
 
     results_path = os.path.join(run_dir, "results.json")
@@ -216,7 +239,7 @@ def main():
         if not batch_inputs:
             break
 
-        outputs = llm.generate(batch_inputs, sampling_params=sampling_params)
+        outputs = llm.generate(batch_inputs, sampling_params=sampling_params, lora_request=lora_request)
         for sample, o in zip(batch_samples, outputs):
             results.append({
                 "qid": sample["qid"],
