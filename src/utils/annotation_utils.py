@@ -104,6 +104,8 @@ def annotate_frames(frames, video_segments, annotation_type="mask", **kwargs):
             continue
 
         mask = _mask_to_numpy(video_segments[idx])
+        if mask.shape != frame_np.shape[:2]:
+            mask = cv2.resize(mask, (frame_np.shape[1], frame_np.shape[0]), interpolation=cv2.INTER_NEAREST)
 
         if annotation_type == "mask":
             alpha = kwargs.get("alpha", 0.4)
