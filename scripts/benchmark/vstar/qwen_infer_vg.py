@@ -93,6 +93,7 @@ LLM_CONFIG = {
 SAMPLING_CONFIG = {
     "max_tokens": cfg["sampling"]["max_tokens"],
     "temperature": cfg["sampling"]["temperature"],
+    "seed": cfg["sampling"]["seed"],
 }
 
 VIDEO_CONFIG = {
@@ -239,7 +240,7 @@ def main():
         if not batch_inputs:
             break
 
-        outputs = llm.generate(batch_inputs, sampling_params=sampling_params, lora_request=lora_request)
+        outputs = llm.generate(batch_inputs, sampling_params=sampling_params, lora_request=lora_request, seed=SAMPLING_CONFIG["seed"])
         for sample, o in zip(batch_samples, outputs):
             results.append({
                 "qid": sample["qid"],

@@ -26,7 +26,8 @@ llm:
 
 sampling:
   max_tokens: 1024
-  temperature: 0
+  temperature: 0.5
+  seed: 42
 
 video:
   total_pixels: 16056320  # 20480 * 28 * 28
