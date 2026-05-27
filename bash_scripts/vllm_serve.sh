@@ -1,5 +1,11 @@
 #!/bin/bash
 
+source /home/${USER}/.bashrc
+source activate perception_models
+
+export OMP_NUM_THREADS=1
+export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
+
 MODEL=Qwen/Qwen2.5-VL-7B-Instruct
 # MODEL=Qwen/Qwen2.5-7B-Instruct
 # MODEL=Qwen/Qwen3-VL-8B-Thinking
