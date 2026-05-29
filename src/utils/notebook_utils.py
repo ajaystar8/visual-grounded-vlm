@@ -76,3 +76,57 @@ def show_video(frames=None, video_path=None, fps=5, width=480, save_path=None, m
     </video>
     """))
     return path
+
+
+def show_video_sam3(frames, masks, fps=5, width=480, save_path=None, mask_color=(255, 0, 0), mask_alpha=0.5):
+    """Overlay SAM3-style per-frame masks on frames and display as video.
+
+    Args:
+        frames: (T, C, H, W) or (T, H, W, C) tensor/array, or list of frames.
+        masks: (T, H, W) bool/uint8 tensor or array (e.g. produced by
+            `outputs_per_frame[i]['masks'].any(dim=0)`). Mask H/W must match frames.
+    """
+    import subprocess
+    import base64
+    import torch
+    from IPython.display import HTML, display
+
+    frames = _to_numpy_frames(frames)
+
+    if isinstance(masks, torch.Tensor):
+        masks = masks.detach().cpu().numpy()
+    masks = np.asarray(masks)
+    if masks.ndim == 4 and masks.shape[1] == 1:
+        masks = masks[:, 0]
+    mask_bin = masks.astype(bool)
+
+    H, W = frames.shape[1:3]
+    assert mask_bin.shape == (len(frames), H, W), \
+        f"mask shape {mask_bin.shape} != expected {(len(frames), H, W)}"
+
+    overlay_color = np.array(mask_color, dtype=np.float32)
+    blended = frames.astype(np.float32)
+    for t in range(len(frames)):
+        m = mask_bin[t]
+        blended[t][m] = (1 - mask_alpha) * frames[t][m] + mask_alpha * overlay_color
+    frames = blended.clip(0, 255).astype(np.uint8)
+
+    path = save_path or "/tmp/_preview.mp4"
+    writer = cv2.VideoWriter(path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (W, H))
+    for f in frames:
+        writer.write(cv2.cvtColor(np.array(f), cv2.COLOR_RGB2BGR))
+    writer.release()
+
+    tmp = path + ".tmp.mp4"
+    os.rename(path, tmp)
+    subprocess.run(["ffmpeg", "-y", "-i", tmp, "-vcodec", "libx264", path], check=True, capture_output=True)
+    os.remove(tmp)
+
+    with open(path, "rb") as f:
+        b64 = base64.b64encode(f.read()).decode()
+    display(HTML(f"""
+    <video width="{width}" controls>
+      <source src="data:video/mp4;base64,{b64}" type="video/mp4">
+    </video>
+    """))
+    return path
