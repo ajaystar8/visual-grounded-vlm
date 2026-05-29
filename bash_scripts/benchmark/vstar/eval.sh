@@ -21,7 +21,7 @@ export VLLM_WORKER_MULTIPROC_METHOD=spawn # vLLM crashes if not set
 PROJECT_ROOT=/projects/torresani-lab/ajay/visual-grounded-vlm
 cd $PROJECT_ROOT
 
-EXP_DIR=/scratch/rajendrakumar.a/visual-grounded-vlm/results/qwen25vl7bi_vstar_zeroshot_vg_outline/2026-05-20_12-06-08
+EXP_DIR=/scratch/rajendrakumar.a/visual-grounded-vlm/results/qwen25vl7bi_vstar_zeroshot_vg_mask/2026-05-24_20-10-10
 python scripts/benchmark/vstar/eval.py --exp_dir "$EXP_DIR"
 
 echo "End time: $(date)"

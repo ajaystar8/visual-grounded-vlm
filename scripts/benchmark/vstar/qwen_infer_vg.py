@@ -240,7 +240,7 @@ def main():
         if not batch_inputs:
             break
 
-        outputs = llm.generate(batch_inputs, sampling_params=sampling_params, lora_request=lora_request, seed=SAMPLING_CONFIG["seed"])
+        outputs = llm.generate(batch_inputs, sampling_params=sampling_params, lora_request=lora_request)
         for sample, o in zip(batch_samples, outputs):
             results.append({
                 "qid": sample["qid"],
