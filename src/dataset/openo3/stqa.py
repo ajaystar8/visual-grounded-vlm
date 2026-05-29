@@ -72,7 +72,7 @@ class OpenO3STQADataset(Dataset):
             self.system_prompt = f.read().strip()
         self.annotate_frames = annotate_frames
         self.replace_boxes = replace_boxes
-        self.replacement_text = replacement_text
+        self.replacement_text = " " + replacement_text.strip() + " " # add spaces for better token separation
         self.bbox_thickness = bbox_thickness
 
         hf_dataset = load_dataset("json", data_files=json_path, split="train")
@@ -112,12 +112,13 @@ class OpenO3STQADataset(Dataset):
             for kf in example["key_frames"]
         ]
 
-        merged_frames, frame_prompt, key_frame_indices = self._merge_key_frames(messages, key_frame_paths, example)
+        merged_frames, frame_prompt, key_frame_indices, key_frame_bboxes = self._merge_key_frames(messages, key_frame_paths, example)
 
-        return {"messages": messages, 
-                "merged_frames": merged_frames, 
-                "frame_prompt": frame_prompt, 
-                "key_frame_indices": key_frame_indices}
+        return {"messages": messages,
+                "merged_frames": merged_frames,
+                "frame_prompt": frame_prompt,
+                "key_frame_indices": key_frame_indices,
+                "key_frame_bboxes": key_frame_bboxes}
 
     # ------------------------------------------------------------------
     # Path helpers
@@ -157,13 +158,15 @@ class OpenO3STQADataset(Dataset):
     # Frame merging
     # ------------------------------------------------------------------
 
-    def _merge_key_frames(self, messages: list, key_frame_paths: list, example: dict) -> tuple[torch.Tensor, str, list[int]]:
+    def _merge_key_frames(self, messages: list, key_frame_paths: list, example: dict) -> tuple[torch.Tensor, str, list[int], list[dict]]:
         """Merge annotated key frames into the sampled video frames.
 
         Returns:
             merged_frames: Tensor of shape (n, c, h, w).
             frame_prompt: Text with per-frame image placeholders.
             key_frame_indices: Indices into merged_frames where key frames were inserted.
+            key_frame_bboxes: List parallel to key_frame_indices; each entry is the
+                {label: [bbox, ...]} mapping (normalized xyxy) for that key frame.
         """
         _, video_inputs, video_kwargs = process_vision_info(messages, return_video_kwargs=True)
         _, _, h, w = video_inputs[0].shape
@@ -174,17 +177,21 @@ class OpenO3STQADataset(Dataset):
             if self.annotate_frames:
                 img = self._draw_boxes(img, kf, example, (w, h))
             tensor = torch.from_numpy(np.array(img)).permute(2, 0, 1)
-            key_frames.append((kf["time"], tensor))
+            bboxes = example.get("key_items", {}).get(str(kf["idx"]), {})
+            key_frames.append((kf["time"], tensor, bboxes))
 
         curr_kf_idx, sampled_fps = 0, video_kwargs["fps"][0]
         merged = []
         key_frame_indices = []
+        key_frame_bboxes = []
 
         for idx, frame in enumerate(video_inputs[0]):
             curr_time = int(idx / sampled_fps)
             while curr_kf_idx < len(key_frames) and key_frames[curr_kf_idx][0] <= curr_time:
                 key_frame_indices.append(len(merged))
-                merged.append(key_frames[curr_kf_idx])
+                kf_time, kf_tensor, kf_bboxes = key_frames[curr_kf_idx]
+                merged.append((kf_time, kf_tensor))
+                key_frame_bboxes.append(kf_bboxes)
                 curr_kf_idx += 1
             merged.append((round(idx / sampled_fps, 1), frame))
 
@@ -194,7 +201,7 @@ class OpenO3STQADataset(Dataset):
         )
         merged_frames = torch.stack([f for _, f in merged], dim=0)
 
-        return merged_frames, frame_prompt, key_frame_indices
+        return merged_frames, frame_prompt, key_frame_indices, key_frame_bboxes
 
     def _draw_boxes(self, img: Image.Image, kf: dict, example: dict, image_size: tuple) -> Image.Image:
         """Draw bounding boxes for all items in this key frame onto img."""

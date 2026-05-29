@@ -95,9 +95,11 @@ def annotate_frames(frames, video_segments, annotation_type="mask", **kwargs):
     annotated_frames = []
     for idx, frame in enumerate(frames):
         if isinstance(frame, torch.Tensor):
-            frame_np = frame.permute(1, 2, 0).cpu().numpy().astype(np.uint8)
-        else:
-            frame_np = np.asarray(frame).astype(np.uint8)
+            frame = frame.cpu().numpy()
+        frame_np = np.asarray(frame)
+        if frame_np.ndim == 3 and frame_np.shape[0] == 3:
+            frame_np = frame_np.transpose(1, 2, 0)
+        frame_np = frame_np.astype(np.uint8)
 
         if idx not in video_segments:
             annotated_frames.append(frame_np)
