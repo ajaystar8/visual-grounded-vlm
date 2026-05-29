@@ -3,6 +3,7 @@
 
 /notebooks
 /rough_notebooks
+/debug_notebooks
 slurm_logs/
 dump/
 external/
