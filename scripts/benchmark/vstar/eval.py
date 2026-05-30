@@ -15,6 +15,7 @@ Controlled by:
 """
 
 import os
+import re
 import json
 import time
 import logging
@@ -42,15 +43,24 @@ Your response should be a single integer from 0, 1, 2, or 3.
 """
 tmpl = 'Question: {}\nGroundtruth answer: {}\nCandidate answer: {}\nYour response: '
 
+def extract_answer(text):
+    """Return the <answer>...</answer> span so the judge scores only the final
+    answer, not the <think> reasoning trace. Falls back to the raw string when
+    no <answer> tag is present (e.g. zeroshot runs that emit no tags)."""
+    if not isinstance(text, str):
+        return text
+    m = re.search(r"<answer>(.*?)</answer>", text, flags=re.DOTALL | re.IGNORECASE)
+    return m.group(1).strip() if m else text
+
 def build_prompts(data):
-    
+
     prompts = []
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
     for sample in data:
         question = sample["question"]
         gt_ans = sample["gt_answer"]
-        gen_ans = sample["generated_answer"]
+        gen_ans = extract_answer(sample["generated_answer"])
         user_prompt = tmpl.format(question, gt_ans, gen_ans)
         messages = [
             {"role": "system", "content": system_prompt},
@@ -159,11 +169,16 @@ if __name__ == "__main__":
     logger.info("avg_all_scores=%.4f avg_valid_scores=%.4f accuracy=%.4f",
                 avg_all_scores, avg_valid_scores, accuracy)
 
+    candidate_answers = [extract_answer(s['generated_answer']) for s in data]
+    # samples with no <answer> tag fall back to scoring the raw generated text
+    num_extraction_fallback = sum(c == s['generated_answer'] for c, s in zip(candidate_answers, data))
+
     per_sample = pd.DataFrame({
         'qid': [s.get('qid') for s in data],
         'question': [s['question'] for s in data],
         'gt_answer': [s['gt_answer'] for s in data],
         'generated_answer': [s['generated_answer'] for s in data],
+        'candidate_answer': candidate_answers,
         'score': scores,
         'verdict': [score_to_verdict(s) for s in scores],
     })
@@ -175,6 +190,7 @@ if __name__ == "__main__":
         'avg_valid_scores': avg_valid_scores,
         'num_samples': len(scores),
         'num_valid_samples': len(valid_scores),
+        'num_extraction_fallback': num_extraction_fallback,
     }
     with open(osp.join(experiment_dir, 'evaluation_results.json'), 'w') as f:
         json.dump(results, f, indent=2)
