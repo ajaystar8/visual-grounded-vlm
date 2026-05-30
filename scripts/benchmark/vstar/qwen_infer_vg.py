@@ -117,19 +117,8 @@ def build_prompts(dataset, processor, missing_annotations):
         tuple: (llm_inputs dict with 'prompt' and 'multi_modal_data', sample dict)
     """
     for sample in dataset:
-        messages = [
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": vstar_system_prompt.format(question=sample['question'])},
-                    {
-                        "type": "video",
-                        "video": os.path.join(vstar_root, "videos", sample['vid'] + ".mp4"),
-                        **VIDEO_CONFIG,
-                    },
-                ]
-            },
-        ]
+        # Ensure the same message template is used as used during SFT training (if applicable)
+        
 
         prompt = processor.apply_chat_template(
             messages,

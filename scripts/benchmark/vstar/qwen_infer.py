@@ -87,16 +87,28 @@ def build_prompts(dataset, processor):
     """
     for sample in dataset:
         messages = [
+             {
+                "role": "system",
+                "content": [
+                    {
+                        "type": "text", 
+                        "text": vstar_system_prompt
+                    }
+                ],
+            },
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": vstar_system_prompt.format(question=sample['question'])},
+                    {
+                        "type": "text", 
+                        "text": sample["question"]
+                    },
                     {
                         "type": "video",
                         "video": os.path.join(vstar_root, "videos", sample['vid'] + ".mp4"),
                         **VIDEO_CONFIG,
                     },
-                ]
+                ],
             },
         ]
 
