@@ -68,13 +68,15 @@ def build_prompts(data):
 def score_to_verdict(score):
     return None if score == -1 else score >= 2
 
-def llm_as_judge(data): 
+def llm_as_judge(data):
 
     prompts = build_prompts(data)
-    
+
     llm = LLM(
-        model=MODEL_NAME, 
-        tensor_parallel_size=torch.cuda.device_count()
+        model=MODEL_NAME,
+        tensor_parallel_size=torch.cuda.device_count(),
+        enforce_eager=True,
+        gpu_memory_utilization=0.8,
     )
 
     sampling_params = SamplingParams(max_tokens=MAX_TOKENS)
