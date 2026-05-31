@@ -118,7 +118,32 @@ def build_prompts(dataset, processor, missing_annotations):
     """
     for sample in dataset:
         # Ensure the same message template is used as used during SFT training (if applicable)
-        
+        messages = [
+             {
+                "role": "system",
+                "content": [
+                    {
+                        "type": "text", 
+                        "text": vstar_system_prompt
+                    }
+                ],
+            },
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text", 
+                        "text": sample["question"]
+                    },
+
+                    {
+                        "type": "video",
+                        "video": sample["video_path"],
+                        **VIDEO_CONFIG,
+                    },
+                ],
+            },
+        ]
 
         prompt = processor.apply_chat_template(
             messages,

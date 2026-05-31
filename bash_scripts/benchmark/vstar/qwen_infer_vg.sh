@@ -8,7 +8,7 @@
 #SBATCH --time=2:00:00
 #SBATCH --partition=torresani-lab
 #SBATCH --gres=gpu:h200:1
-#SBATCH --nodelist=d4077
+
 
 echo "Job ID: $SLURM_JOB_ID"
 echo "Running on: $(hostname)"
