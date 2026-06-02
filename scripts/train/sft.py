@@ -106,15 +106,7 @@ if __name__ == "__main__":
     sft_config.dataset_kwargs = {"skip_prepare_dataset": True} # since we are using a custom collator
 
     # Load dataset
-    dataset = OpenO3STQADataset(
-        json_path=dataset_config.annotation_json_path,
-        data_root=dataset_config.dataset_root,
-        system_prompt_path=dataset_config.system_prompt_path,
-        annotate_frames=dataset_config.annotate_frames,
-        replace_boxes=dataset_config.replace_boxes,
-        replacement_text=dataset_config.replacement_text,
-        bbox_thickness=dataset_config.bbox_thickness,
-    )
+    dataset = OpenO3STQADataset.from_config(dataset_config)
     logging.info(f"Loaded dataset with {len(dataset)} samples belonging to `temporal-spatial free-form QA` task.")
 
     # Create model instance

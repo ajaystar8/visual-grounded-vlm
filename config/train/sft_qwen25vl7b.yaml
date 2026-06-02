@@ -5,10 +5,13 @@ wandb_project_name: visual-grounded-vlm
 annotation_json_path: "/projects/torresani-lab/ajay/datasets/Open-o3-Video/json_data/STGR-SFT.json"
 dataset_root: "/projects/torresani-lab/ajay/datasets/Open-o3-Video/"
 system_prompt_path: "/projects/torresani-lab/ajay/visual-grounded-vlm/prompts/train/openo3_red_bbox_stqa.md"
-annotate_frames: true
+annotate_concepts: true
 replace_boxes: true
 replacement_text: "as highlighted by the red bounding box"
 bbox_thickness: 2
+annotate_frame_numbers: false
+frame_number_scale: 1.0
+frame_number_thickness: 2
 
 # ModelConfig
 model_name_or_path: Qwen/Qwen2.5-VL-7B-Instruct
