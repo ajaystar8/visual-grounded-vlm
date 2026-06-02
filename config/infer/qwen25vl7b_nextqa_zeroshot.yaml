@@ -7,11 +7,11 @@ dataset:
   name: NExT-QA
   root: /projects/torresani-lab/ajay/datasets/nextqa
   split: test
-  system_prompt_path: /projects/torresani-lab/ajay/visual-grounded-vlm/prompts/inference/no_annotation_mcq.md
+  # system_prompt_path: /projects/torresani-lab/ajay/visual-grounded-vlm/prompts/inference/no_annotation_mcq.md
 
 results_root: /scratch/rajendrakumar.a/visual-grounded-vlm/results
 
-batch_size: 500
+batch_size: 32
 
 llm:
   gpu_memory_utilization: 0.8
@@ -20,9 +20,11 @@ llm:
     video: 1
 
 sampling:
-  max_tokens: 1024
   temperature: 0
-  seed: 42
+  max_tokens: 128
+  seed: 1234
 
 video:
-  fps: 1.0
+  max_pixels: 1605632
+  min_pixels: 200704
+  nframes: 32

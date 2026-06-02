@@ -29,9 +29,9 @@ model_path = cfg["model"]["path"]
 
 nextqa_root = cfg["dataset"]["root"]
 nextqa_split = cfg["dataset"]["split"]
-nextqa_system_prompt_path = cfg["dataset"]["system_prompt_path"]
-with open(nextqa_system_prompt_path) as f:
-    nextqa_system_prompt = f.read()
+# nextqa_system_prompt_path = cfg["dataset"]["system_prompt_path"]
+# with open(nextqa_system_prompt_path) as f:
+#     nextqa_system_prompt = f.read()
 
 BATCH_SIZE = cfg["batch_size"]  # we need to do this to prevent RAM overflow
 
@@ -57,21 +57,12 @@ def build_prompts(dataset, processor):
     """
     for sample in dataset:
         messages = [
-             {
-                "role": "system",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": nextqa_system_prompt
-                    }
-                ],
-            },
             {
                 "role": "user",
                 "content": [
                     {
                         "type": "text",
-                        "text": sample["question"] + "\nOptions:\n" + sample["options_str"]
+                        "text": sample["question"] + "\n" + sample["options_str"]
                     },
                     {
                         "type": "video",
@@ -118,8 +109,8 @@ def save_metadata(run_dir, run_start_time, num_samples):
             "root": nextqa_root,
             "num_samples_processed": num_samples,
         },
-        "system_prompt_path": nextqa_system_prompt_path,
-        "system_prompt_template": nextqa_system_prompt.strip(),
+        # "system_prompt_path": nextqa_system_prompt_path,
+        # "system_prompt_template": nextqa_system_prompt.strip(),
         "llm_config": LLM_CONFIG,
         "sampling_config": SAMPLING_CONFIG,
         "video_config": VIDEO_CONFIG,

@@ -7,11 +7,10 @@ from torch.utils.data import Dataset
 
 DATASET_ROOT = "/projects/torresani-lab/ajay/datasets/nextqa"
 VIDEO_CONFIG = {
-    "total_pixels": 20480 * 28 * 28,
-    "min_pixels": 16 * 28 * 28,
-    "fps": 1.0,
+    "total_pixels": 2048 * 28 * 28,
+    "min_pixels": 256 * 28 * 28,
+    "nframes": 32,
 }
-
 
 class NextQADataset(Dataset):
 
@@ -66,7 +65,7 @@ class NextQADataset(Dataset):
         # Format options string for multiple choice questions
         options = ['A', 'B', 'C', 'D', 'E']
         formatted_options = [
-            f"({letter}) {row[f'a{i}'].strip()}"
+            f"{letter}. {row[f'a{i}'].strip()}"
             for i, letter in enumerate(options)
         ]
         options_str = "\n".join(formatted_options)
