@@ -5,7 +5,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=12
 #SBATCH --mem=64G
-#SBATCH --time=2:00:00
+#SBATCH --time=12:00:00
 #SBATCH --partition=torresani-lab
 #SBATCH --gres=gpu:h200:1
 
@@ -22,7 +22,7 @@ export VLLM_WORKER_MULTIPROC_METHOD=spawn # vLLM crashes if not set
 PROJECT_ROOT=/projects/torresani-lab/ajay/visual-grounded-vlm
 cd $PROJECT_ROOT
 
-CONFIG_PATH="config/infer/qwen25vl7b_vstar_sft_vg/bbox.yaml"
+CONFIG_PATH="config/infer/qwen25vl7b_vstar_sft_vg/new_default.yaml"
 python scripts/benchmark/vstar/qwen_infer_vg.py --config $CONFIG_PATH
 
 echo "End time: $(date)"

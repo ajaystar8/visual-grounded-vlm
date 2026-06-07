@@ -22,7 +22,7 @@ export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$LD_LIBRARY_PATH
 PROJECT_ROOT=/projects/torresani-lab/ajay/visual-grounded-vlm
 cd $PROJECT_ROOT
 
-CONFIG_FILE=config/train/sft_qwen25vl7b.yaml
+CONFIG_FILE=config/train/sft_qwen25vl7b_frame_nums.yaml
 
 NPROC=${SLURM_GPUS_ON_NODE:-$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)}
 torchrun --nproc_per_node="$NPROC" scripts/train/sft.py --config "$CONFIG_FILE"

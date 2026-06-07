@@ -4,7 +4,7 @@ wandb_project_name: visual-grounded-vlm
 # OpenO3DatasetConfig
 annotation_json_path: "/projects/torresani-lab/ajay/datasets/Open-o3-Video/json_data/STGR-SFT.json"
 dataset_root: "/projects/torresani-lab/ajay/datasets/Open-o3-Video/"
-system_prompt_path: "/projects/torresani-lab/ajay/visual-grounded-vlm/prompts/train/openo3_red_bbox_frame_num.md"
+system_prompt_path: "/projects/torresani-lab/ajay/visual-grounded-vlm/prompts/train/openo3_red_bbox_frame_num_v2.md"
 annotate_concepts: true
 replace_boxes: true
 replacement_text: "as highlighted by the red bounding box"
@@ -25,7 +25,7 @@ lora_dropout: 0.05
 lora_target_modules: ["q_proj", "v_proj"]
 
 # SFTConfig
-run_name: only_kf_red_bbox_frame_nums
+run_name: only_kf_red_bbox_frame_nums_sys_prompt_v2
 output_dir: /scratch/rajendrakumar.a/visual-grounded-vlm/sft/checkpoints/sft_qwen25vl7bi
 per_device_train_batch_size: 1
 gradient_accumulation_steps: 1
