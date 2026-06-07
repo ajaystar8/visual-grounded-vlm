@@ -88,6 +88,12 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
     * Outputs (types + meaning)
   * Skip over-documenting throwaway or one-off experiment code.
 
+* **Inline comments**
+
+  * Write one brief, single-line comment above each code stub (a function, or a logical block within a function) describing what it does — not how.
+  * Keep them short and skimmable; the comment should let a reader follow the flow without reading the code line by line.
+  * Don't comment every line, and don't restate obvious code.
+
 * **Shell scripts and sbatch jobs**
 
   * All sbatch scripts live under `bash_scripts/<category>/` (e.g., `bash_scripts/infer/`, `bash_scripts/benchmark/`).
