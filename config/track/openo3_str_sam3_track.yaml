@@ -1,0 +1,15 @@
+experiment_name: uniform_sample_1fps_orig_res_track
+
+dataset:
+  json_path: /projects/torresani-lab/ajay/datasets/Open-o3-Video/json_data/STGR-SFT.json
+  task: temporal-spatial free-form QA
+  num_samples: null  # null = run all; set an int to cap for debugging
+
+video:
+  fps: 1  # frame rate at which the video is sampled before splicing keyframes
+
+sam3:
+  model_id: facebook/sam3
+  det_threshold: 0.3  # mask-detection score threshold for text grounding
+
+results_root: /scratch/rajendrakumar.a/visual-grounded-vlm/annotations/openo3video/
