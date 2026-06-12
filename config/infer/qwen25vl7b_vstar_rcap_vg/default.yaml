@@ -1,0 +1,35 @@
+experiment_name: qwen25vl7bi_vstar_zeroshot_rcap_vg
+
+model:
+  path: Qwen/Qwen2.5-VL-7B-Instruct
+  experiment_dir: ""  # set to LoRA checkpoint dir, or leave empty for base model
+
+dataset:
+  dataset_root: /projects/torresani-lab/ajay/datasets/V-STaR
+  system_prompt_path: /projects/torresani-lab/ajay/visual-grounded-vlm/prompts/inference/bbox_rcap_prompt_v3.md
+  annotate_concepts: true
+  bbox_thickness: 2
+  annotate_frame_numbers: false
+  sam3_annotations_root: /scratch/rajendrakumar.a/visual-grounded-vlm/annotations/vstar/uniform_sample_cap_768/2026-05-19_19-14-38
+  video_config:
+    min_pixels: 100_352  # 128 * 28 * 28
+    max_pixels: 401_408  # 512 * 28 * 28 
+    fps: 1
+
+rcap_captions_root: "/scratch/rajendrakumar.a/visual-grounded-vlm/annotations/vstar/vstar_qwen3vl32b_rcap"
+
+results_root: /scratch/rajendrakumar.a/visual-grounded-vlm/results
+
+batch_size: 64
+tgt_frames: 32 # number of frames to process
+
+llm:
+  gpu_memory_utilization: 0.8
+  enforce_eager: true
+  limit_mm_per_prompt:
+    video: 1
+
+sampling:
+  max_tokens: 1024
+  temperature: 0.5
+  seed: 42
