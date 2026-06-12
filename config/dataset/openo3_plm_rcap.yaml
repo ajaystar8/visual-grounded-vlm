@@ -1,0 +1,27 @@
+experiment_name: openo3_str_plm_rcap
+
+dataset:
+  json_path: /projects/torresani-lab/ajay/datasets/Open-o3-Video/json_data/STGR-SFT.json
+  task: temporal-spatial free-form QA
+  num_samples: null  # null = run all; set an int to cap for debugging
+
+# results dir of a prior sam3_track run (holds manifest.json + per-sample mask npz files)
+track_results_dir: /scratch/rajendrakumar.a/visual-grounded-vlm/annotations/openo3video/uniform_sample_1fps_orig_res_track
+
+video:
+  tgt_frames: 32      # frames uniformly subsampled from the augmented stack before PLM inference
+  encode_fps: 4       # frame rate of the materialized annotated mp4
+  bbox_color: [255, 0, 0]
+  bbox_thickness: 2
+
+plm:
+  model_path: facebook/Perception-LM-8B
+  max_new_tokens: 256
+  temperature: 0.3
+  top_p: 0.9
+
+prompts:
+  caption: "Please describe the video in detail."
+  rcap: "Describe what is the target subject present in the region highlighted by the red bounding box. Then describe in detail what is happening to the subject in the region highlighted by the red rectangle in this video?"
+
+results_root: /scratch/rajendrakumar.a/visual-grounded-vlm/annotations/openo3video/

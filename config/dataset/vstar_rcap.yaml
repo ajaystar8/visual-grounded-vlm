@@ -1,0 +1,37 @@
+experiment_name: vstar_qwen3vl32b_rcap
+
+model:
+  path: Qwen/Qwen3-VL-32B-Instruct
+
+dataset:
+  dataset_root: /projects/torresani-lab/ajay/datasets/V-STaR
+  system_prompt_path: /projects/torresani-lab/ajay/visual-grounded-vlm/prompts/rcap/v3_3.md
+  annotate_concepts: true
+  bbox_thickness: 2
+  annotate_frame_numbers: false
+  sam3_annotations_root: /scratch/rajendrakumar.a/visual-grounded-vlm/annotations/vstar/uniform_sample_cap_768/2026-05-19_19-14-38
+  video_config:
+    max_pixels: 401408  # 512 * 28 * 28 -> either way this wont matter much (see hack note in script)
+    fps: 1
+
+tgt_frames: 16  # frames uniformly subsampled from the decoded stack before inference
+
+results_root: /scratch/rajendrakumar.a/visual-grounded-vlm/annotations/vstar/ 
+
+batch_size: 64
+
+llm:
+  gpu_memory_utilization: 0.9
+  max_model_len: 32768
+  enforce_eager: true
+  limit_mm_per_prompt:
+    video: 1
+
+sampling:
+  max_tokens: 256
+  temperature: 0.7
+  seed: 3407
+  top_p: 0.8
+  top_k: 20
+  repetition_penalty: 1.0
+  presence_penalty: 1.5
