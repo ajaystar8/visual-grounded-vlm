@@ -1,7 +1,7 @@
 """
 Helpers for loading SAM3 pseudo-GT annotations and overlaying them on frames.
 
-Mask files are produced by `src/dataset/annotate.py` and stored as JSON with
+Mask files are produced by `src/dataset/vstar/propagate_sam3_masks.py` and stored as JSON with
 COCO-RLE-encoded per-frame masks.
 """
 
@@ -20,7 +20,7 @@ RED_RGB = (255, 0, 0)  # frames are RGB; OpenCV draws into them with RGB tuples
 
 def load_mask_annotations(json_path: str) -> dict:
     """
-    Load a per-sample annotation file written by annotate.py.
+    Load a per-sample annotation file written by propagate_sam3_masks.py.
 
     Returns:
         dict with the original metadata fields and an extra `masks_np` field:

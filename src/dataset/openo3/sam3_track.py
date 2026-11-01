@@ -2,8 +2,8 @@
 1fps video for every spatio-temporal sample in the Open-o3-Video STR dataset, storing the
 SAM3 tracker outputs (masks + bboxes) and run/concept/sample metadata per sample.
 
-Mirrors Step 3 of rough_notebooks/openo3_track_filter.ipynb. Usage:
-    python scripts/track/openo3_str_sam3_track.py --config config/track/openo3_str_sam3_track.yaml
+Usage:
+    python src/dataset/openo3/sam3_track.py --config config/track/openo3_str_sam3_track.yaml
 """
 import sys
 sys.path.append("/projects/torresani-lab/ajay/visual-grounded-vlm/")

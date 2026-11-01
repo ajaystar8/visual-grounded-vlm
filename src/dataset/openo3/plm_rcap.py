@@ -5,7 +5,7 @@ video annotated with that concept's tracked bbox. Results are written one JSON f
 All generations for a single sample (summary + per-concept captions) are batched into one
 model.generate call. Annotated videos are written to temp files and deleted after each sample.
 
-Mirrors the OO3 section of rough_notebooks/plm_rcap.ipynb. Usage:
+Usage:
     python src/dataset/openo3/plm_rcap.py --config config/dataset/openo3_plm_rcap.yaml
 """
 import sys
