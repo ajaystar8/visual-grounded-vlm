@@ -1,7 +1,10 @@
 .*
 *__pycache__*
 
-/notebooks
+/notebooks/*
+!/notebooks/sft_output_analysis.ipynb
+!/notebooks/sft_cot_browser.ipynb
+!/notebooks/attention_map_analysis.ipynb
 /rough_notebooks
 /debug_notebooks
 slurm_logs/
@@ -13,3 +16,6 @@ dump_dir
 wandb/
 docs/
 references/
+scratch/
+datasets/
+explorer_backup/
