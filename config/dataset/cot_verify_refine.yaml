@@ -1,0 +1,14 @@
+# Root of a prior str_cot_synth run (holds samples/*.json); refined_samples/ and
+# dropped.json are written back under this same root.
+samples_root: /scratch/rajendrakumar.a/visual-grounded-vlm/annotations/openo3video/openo3_str_cot_synth_no_gt_ans_mod
+
+model:
+  path: Qwen/Qwen3-4B-Instruct-2507
+
+llm:
+  gpu_memory_utilization: 0.9
+  max_model_len: 8192
+
+sampling:
+  max_tokens: 4
+  temperature: 0.0

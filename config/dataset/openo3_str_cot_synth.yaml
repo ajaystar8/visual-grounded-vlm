@@ -1,0 +1,55 @@
+experiment_name: openo3_str_cot_synth_no_gt_ans_mod
+
+dataset:
+  json_path: /projects/torresani-lab/ajay/datasets/Open-o3-Video/json_data/STGR-SFT.json
+  task: temporal-spatial free-form QA
+  num_samples: null  # null = run all; set an int to cap for debugging
+
+# results dir of a prior sam3_track run (holds manifest.json + per-sample mask npz files)
+track_results_dir: /scratch/rajendrakumar.a/visual-grounded-vlm/annotations/openo3video/uniform_sample_1fps_orig_res_track
+
+model:
+  path: Qwen/Qwen3-VL-32B-Instruct
+
+video:
+  tgt_frames: 32                    # frames uniformly subsampled from the augmented stack before inference
+  min_pixels: 100_352               # 128 * 28 * 28, per-frame pixel floor for Qwen3-VL video processor
+  max_pixels: 401_408               # 512 * 28 * 28, per-frame pixel ceiling
+  bbox_color: [255, 0, 0]
+  bbox_thickness: 2
+
+prompts:
+  rcap_system_prompt_path: /projects/torresani-lab/ajay/visual-grounded-vlm/prompts/rcap/v3_4.md
+  cot_system_prompt_path: /projects/torresani-lab/ajay/visual-grounded-vlm/prompts/cot/v15_only_rcap_estb_rln_no_gt_calib_ans.md
+
+# cheap heuristic flag on the extracted answer; a stronger LLM-judge pass can run later
+answer_check:
+  min_overlap: 0.3    # min fraction of GT-answer tokens that must appear in the extracted answer
+
+results_root: /scratch/rajendrakumar.a/visual-grounded-vlm/annotations/openo3video/
+
+batch_size: 64        # samples per Stage-A/Stage-B generate pair
+
+llm:
+  gpu_memory_utilization: 0.9
+  max_model_len: 131072
+  enforce_eager: true
+  limit_mm_per_prompt: {video: 1}
+
+sampling:
+  rcap:
+    max_tokens: 768
+    temperature: 0.7
+    top_p: 0.8
+    top_k: 20
+    repetition_penalty: 1.0
+    presence_penalty: 1.5
+    seed: 42
+  cot:
+    max_tokens: 1024
+    temperature: 0.7
+    top_p: 0.8
+    top_k: 20
+    repetition_penalty: 1.0
+    presence_penalty: 1.5
+    seed: 42
