@@ -1,6 +1,3 @@
-# MyScriptArguments
-wandb_project_name: visual-grounded-vlm
-
 # OpenO3DatasetConfig
 annotation_json_path: "/projects/torresani-lab/ajay/datasets/Open-o3-Video/json_data/STGR-SFT.json"
 dataset_root: "/projects/torresani-lab/ajay/datasets/Open-o3-Video/"
