@@ -2,7 +2,6 @@
 *__pycache__*
 
 /notebooks/*
-!/notebooks/sft_output_analysis.ipynb
 !/notebooks/sft_cot_browser.ipynb
 !/notebooks/attention_map_analysis.ipynb
 /rough_notebooks

@@ -47,7 +47,7 @@ After fine-tuning, the model did begin to cite the boxes. However, it also cited
 
 **Implementation:** [CoT template](prompts/cot/v15_only_rcap_estb_rln_no_gt_calib_ans.md) ([earlier iterations](prompts/cot/)) · [trace generation](src/dataset/openo3/str_cot_synth.py) → [verification and filtering](src/dataset/openo3/cot_verify_refine.py) → [dense-box dataset](src/dataset/openo3/openo3_video_dataset.py) → [CoT SFT](scripts/train/sft_cot.py) · [inference](scripts/benchmark/vstar/qwen_infer_vg_dense.py)
 
-**Analysis:** [fine-tuned vs. zero-shot outputs](notebooks/sft_output_analysis.ipynb) (answer agreement, grounding markup, and accuracy) · [CoT trace browser](notebooks/sft_cot_browser.ipynb) (manual inspection, looping behavior, and filtering statistics) · [attention maps](notebooks/attention_map_analysis.ipynb) (answer-to-frame attention with and without overlays)
+**Analysis:** [CoT trace browser](notebooks/sft_cot_browser.ipynb) (manual inspection, looping behavior, and filtering statistics) · [attention maps](notebooks/attention_map_analysis.ipynb) (answer-to-frame attention with and without overlays)
 
 ## Repository map
 
